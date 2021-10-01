@@ -12,10 +12,11 @@ screen_height = 500
 screen_width = 500
 num_grid_lines = 3
 
-h_spacing = (screen_height/num_grid_lines)
-floor_h_spacing = math.floor(h_spacing)
-v_spacing = (screen_width/num_grid_lines)
-floor_v_spacing = math.floor(v_spacing)
+h_spacing = 0
+floor_h_spacing = 0
+v_spacing = 0
+floor_v_spacing = 0
+
 
 #Display screen
 screen = pg.display.set_mode((screen_width, total_screen_height))
@@ -56,15 +57,22 @@ def populate_game_board(n_grid_lines):
                
     print(game_board)
 
-populate_game_board(num_grid_lines)
+#populate_game_board(num_grid_lines)
 
 
 #Draw Grid
 def draw_grid(n_grid_lines):
     #grid backround
-    
-    screen.fill(rgb)
+    global h_spacing
+    global floor_h_spacing
+    global v_spacing
+    global floor_v_spacing
 
+    screen.fill(rgb)
+    h_spacing = (screen_height/n_grid_lines)
+    floor_h_spacing = math.floor(h_spacing)
+    v_spacing = (screen_width/n_grid_lines)
+    floor_v_spacing = math.floor(v_spacing)
     #gridlines
     line_width = 7
     line_color = purple
@@ -129,6 +137,7 @@ def populate_cells():
 def search_array(game_board):
     global game_over
     global winner
+    global num_grid_lines
     for rows in game_board:
         #check rows for winner
         if sum(rows) == num_grid_lines:
@@ -241,6 +250,8 @@ class GameState():
         if self.state == 'main_game':
             #draw_grid(num_grid_lines)
             self.main_game()
+        if self.state == 'ai_scene':
+            self.ai_scene()
 
         
 
@@ -253,6 +264,8 @@ class GameState():
         global player
         global mouse_pos
         global turn_count
+        global running
+        global num_grid_lines
 
         game_board = []
         turn_count = 0
@@ -260,22 +273,78 @@ class GameState():
         player = 1
         mouse_pos = (0,0)
         winner = 0
-        populate_game_board(num_grid_lines)
-        screen.fill(rgb)
+        #
+        #num_grid_lines = 3
+        #populate_game_board(num_grid_lines)
+        
 
+        screen.fill(rgb)
+        
+        # inatantiate intro screen ui objects
+        intro_rect = pg.Rect(0,0,screen_width//2,total_screen_height)
+        pg.draw.rect(screen,(218,112,214),intro_rect)
+
+        intro_rect_t = pg.Rect(screen_width//2,0,screen_width//2,total_screen_height)
+        pg.draw.rect(screen,(72,61,139),intro_rect_t)
+
+        human_image = font.render('VS Human',True,(255,255,255))
+        screen.blit(human_image,(10, 30))
+
+        ai_image = font.render('VS AI',True,(255,255,255))
+        screen.blit(ai_image,(screen_width//2 + 10, 30))
+        
+
+        human_player = buttons(10,100, 'Classic',1)
+        human_player.draw_button()
+
+        human_player_t = buttons(10,200, 'Challenge',1)
+        human_player_t.draw_button()
+
+
+        ai_player = buttons(screen_width//2 + 10,400, 'Classic',3)
+        ai_player.draw_button()
+
+        ai_player_t = buttons(screen_width//2 + 10,500, 'Challenge',3)
+        ai_player_t.draw_button()
+
+        #human_player = buttons(screen_width//2 -100,total_screen_height + 95, 'AI',2)
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
-            if game_over == False:
-                    if event.type == pg.MOUSEBUTTONDOWN and mouse_click == False:
-                        mouse_click = True
-                    if event.type == pg.MOUSEBUTTONUP and mouse_click == True:
-                        #fill_player_clicks()
-                        self.state = 'main_game'
-                        draw_grid(num_grid_lines)
+            if human_player.draw_button():
+                self.state = 'main_game'
+                screen.fill(rgb)
+                num_grid_lines = 3
+                draw_grid(num_grid_lines)
+                populate_game_board(num_grid_lines)
+
+            elif human_player_t.draw_button():
+                self.state = 'main_game'
+                num_grid_lines = 5
+                draw_grid(num_grid_lines)
+                populate_game_board(num_grid_lines)
+            elif ai_player.draw_button():
+                self.state = 'ai_scene'
+        pg.display.update()
 
 
+    def ai_scene(self):
+        global game_over
+        global mouse_click
+        global winner
+        global game_board
+        global player
+        global mouse_pos
+        global turn_count
+        global running
+
+        screen.fill(rgb)
+        draw_grid(num_grid_lines)
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
 
 
     def main_game(self):
@@ -286,6 +355,9 @@ class GameState():
         global player
         global mouse_pos
         global turn_count
+        global running
+        #populate_game_board(num_grid_lines)
+        #draw_grid(num_grid_lines)
         
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -318,23 +390,21 @@ class GameState():
             elif main_menu.draw_button():
                 self.state = 'intro'
                           
-        pg.display.update()
 
 
 
 
 
 
-
+populate_game_board(num_grid_lines)
 #Game loop
 game_state = GameState()
 running = True
 
+
 while running:
     game_state.state_manager()    
     pg.display.update()
-
-
 pg.quit()
    
 
