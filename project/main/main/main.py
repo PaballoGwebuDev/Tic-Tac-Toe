@@ -18,6 +18,7 @@ v_spacing = 0
 floor_v_spacing = 0
 
 
+
 #Display screen
 screen = pg.display.set_mode((screen_width, total_screen_height))
 pg.display.set_caption('Tic Tac Toe')
@@ -29,11 +30,14 @@ mouse_click = False
 mouse_pos = []
 player = 1 #designate 1 for player 1 and -1 for player 2
 offset = 15
-#scene = 0
+
 winner = 0
 game_over = False
 turn_count = 0
 button_click = False
+ai_oponent = False
+ai_game_over = False
+ai_turn = False
 
 #Define  colors
 p_one_color =  (255,0,0) #red
@@ -55,7 +59,7 @@ def populate_game_board(n_grid_lines):
         row = [0]*n_grid_lines
         game_board.append(row)
                
-    print(game_board)
+    #print(game_board)
 
 #populate_game_board(num_grid_lines)
 
@@ -91,28 +95,43 @@ def fill_player_clicks():
     global turn_count
     global winner
     global game_over
+    global player
+    global ai_turn
 
     
     mouse_click = False
     mouse_pos = pg.mouse.get_pos()
 #make sure game play clicks are only registered in play area
-    if mouse_pos[1] <= screen_height:
 
-            cell_x = mouse_pos[1]//floor_h_spacing #column #board flip
-            cell_y = mouse_pos[0]//floor_v_spacing #rows #board flip
+    if mouse_pos[1] <= screen_height and ai_oponent == False:
 
-            if game_board[cell_x][cell_y] == 0:
-                global player
-                game_board[cell_x][cell_y] = player
-                turn_count += 1
-                player *= -1 
+        cell_x = mouse_pos[1]//floor_h_spacing #column #board flip
+        cell_y = mouse_pos[0]//floor_v_spacing #rows #board flip
+
+        if game_board[cell_x][cell_y] == 0:
+            game_board[cell_x][cell_y] = player
+            turn_count += 1
+            player *= -1 
+    elif mouse_pos[1] <= screen_height and ai_oponent:
+        player = -1
+        cell_x = mouse_pos[1]//floor_h_spacing #column #board flip
+        cell_y = mouse_pos[0]//floor_v_spacing #rows #board flip
+
+        if game_board[cell_x][cell_y] == 0:
+            game_board[cell_x][cell_y] = player
+            turn_count += 1
+            
+     
+      
+
  #Check for draw 1st
     if turn_count == (num_grid_lines*num_grid_lines) and winner == 0:
         winner = 3
         game_over = True
+        ai_game_over = True
     else:
         check_winner()
-    print(game_board)
+    #print(game_board)
     #draw X and Os in grid
     populate_cells()
 
@@ -141,20 +160,25 @@ def search_array(game_board):
     for rows in game_board:
         #check rows for winner
         if sum(rows) == num_grid_lines:
+            print(sum(rows))
             winner = 1
             game_over = True
+            ai_game_over = True
         if sum(rows) == -1 *num_grid_lines:
             winner = 2
             game_over = True
+            ai_game_over = True
 
     #check diagonals for winner
     diagonal = numpy.asarray(game_board)
     if numpy.trace(diagonal) == num_grid_lines:
         winner = 1
         game_over = True
+        ai_game_over = True
     if numpy.trace(diagonal) == -1*num_grid_lines:
         winner = 2
         game_over = True
+        ai_game_over = True
 
     anti_diagonal = numpy.fliplr(diagonal)
     if numpy.trace(anti_diagonal) == num_grid_lines:
@@ -163,19 +187,82 @@ def search_array(game_board):
     if numpy.trace(anti_diagonal) == -1*num_grid_lines:
         winner = 2
         game_over = True
+        aiai_game_over = True
 
 
 def check_winner():
-
+    print('min max call')
     #check for winner horizontally
     search_array(game_board)
     #check for winner vertically
     search_array(numpy.transpose(game_board))
 
+#AI Decision tree using the minimax algorithm
+def comp_move():
+
+    best_score = -math.inf
+    best_move_row = 0
+    best_move_col = 0
+    global turn_count
+    global ai_turn
+    #print(game_board)
+
+    for rows in range(num_grid_lines):
+        for col in range(num_grid_lines):
+            if game_board[rows][col] == 0:
+                game_board[rows][col] = 1 #ai goes first
+                score = mini_max(game_board,0,False)
+                game_board[rows][col] = 0
+                if (score > best_score):
+                    best_score = score
+                    best_move_row = rows
+                    best_move_col = col     
+    game_board[best_move_row][best_move_col] = 1
+    ai_turn = False
+    print(game_board)
+    populate_cells()
+    return
+    #ai_turn = False
+    #print(game_board)
+    #return
+
+def mini_max(game_board,depth,maximizing):
+    global winner
+    check_winner()
+    if winner == 1:
+        return 1
+    elif winner == 2:
+        return -1
+    elif winner == 3:
+        return 0
+
+    if maximizing:
+        best_score = -math.inf
+        for rows in range(num_grid_lines):
+            for col in range(num_grid_lines):
+                if game_board[rows][col] == 0:
+                    game_board[rows][col] = 1 #ai goes first
+                    score = mini_max(game_board,depth +1,True)
+                    game_board[rows][col] = 0
+                    if (score > best_score):
+                        best_score = score
+        return best_score
+    else:
+        best_score = math.inf
+        for rows in range(num_grid_lines):
+            for col in range(num_grid_lines):
+                if game_board[rows][col] == 0:
+                    game_board[rows][col] = -1
+                    score = mini_max(game_board,depth +1,False)
+                    game_board[rows][col] = 0
+                    if (score < best_score):
+                        best_score = score
+        return best_score
 
 
+    
 
-def ui_manager(winner): #inherit
+def ui_manager(winner):
     if winner == 1 or winner == 2:
         win_text = 'Player ' + str(winner) + " wins!"
     elif winner == 3:
@@ -248,7 +335,6 @@ class GameState():
         if self.state == 'intro':
             self.intro()
         if self.state == 'main_game':
-            #draw_grid(num_grid_lines)
             self.main_game()
         if self.state == 'ai_scene':
             self.ai_scene()
@@ -266,6 +352,8 @@ class GameState():
         global turn_count
         global running
         global num_grid_lines
+        global ai_oponent
+        global ai_turn
 
         game_board = []
         turn_count = 0
@@ -273,10 +361,7 @@ class GameState():
         player = 1
         mouse_pos = (0,0)
         winner = 0
-        #
-        #num_grid_lines = 3
-        #populate_game_board(num_grid_lines)
-        
+
 
         screen.fill(rgb)
         
@@ -326,11 +411,19 @@ class GameState():
                 populate_game_board(num_grid_lines)
             elif ai_player.draw_button():
                 self.state = 'ai_scene'
+                ai_oponent = True
+                print('intro click sets ai turn to:')
+                ai_turn = True
+                print(ai_turn)
+                turn_count = 1
+                screen.fill(rgb)
+                draw_grid(num_grid_lines)
+                populate_game_board(num_grid_lines)
         pg.display.update()
 
 
     def ai_scene(self):
-        global game_over
+        global ai_game_over
         global mouse_click
         global winner
         global game_board
@@ -338,13 +431,24 @@ class GameState():
         global mouse_pos
         global turn_count
         global running
+        global ai_turn
+        #ai_mouse_click = False
+        
+        if ai_turn:
+            comp_move()
+        else:
 
-        screen.fill(rgb)
-        draw_grid(num_grid_lines)
-
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+                if ai_game_over == False:
+                    if event.type == pg.MOUSEBUTTONDOWN and mouse_click == False:
+                        mouse_click = True
+                    if event.type == pg.MOUSEBUTTONUP and mouse_click == True:
+                        fill_player_clicks()
+                        ai_turn = True
+      
+        
 
 
     def main_game(self):
