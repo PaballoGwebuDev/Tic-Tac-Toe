@@ -53,6 +53,7 @@ rgb = black
 
 #Define fonts
 font = pg.font.SysFont('arial',40,True)
+power_up_font = pg.font.SysFont('calibri',20,True)
 
 
 #Define functions
@@ -89,12 +90,11 @@ def populate_power_ups(n_grid_lines,game_board):
 
 
     for x in range(number_of_power_ups):
-        random_select = random.randint(0,4)
-        ghost_game_board[empties[random_select][0]][empties[random_select][1]] = random.randint(2,4)
+        random_select = random.randint(0,4) 
+        #2 represents powerup that clears the grid horizontally, #3 represents powerup that clears the grid vertically
+        ghost_game_board[empties[random_select][0]][empties[random_select][1]] = random.randint(2,3) 
         empties.pop(random_select)
-
-        
-
+       
     activate_powerups = False
     if turn_count >= 5:
        check_power_up = True
@@ -148,7 +148,9 @@ def fill_player_clicks():
     
     mouse_click = False
     mouse_pos = pg.mouse.get_pos()
+
 #make sure game play clicks are only registered in play area
+
 
     if mouse_pos[1] <= screen_height and ai_oponent == False:
 
@@ -161,19 +163,23 @@ def fill_player_clicks():
             player *= -1 
         #check to see if power up is being clicked.
         if turn_count >= 5 and check_power_up:
-            print(ghost_game_board[cell_x][cell_y])
-            if ghost_game_board[cell_x][cell_y] != 0:
-                print('there is a power up')
 
+            if ghost_game_board[cell_x][cell_y] != 0:
+                print('there is a power up in the cell')
+                #should visually communicate the grid locations of the power-up
+                #should code the effect of clicking the powerup on the game_state{i.e power ups that clear horizontally and vertically}
+
+    #account for ai opponent making moves without clicking
     elif mouse_pos[1] <= screen_height and ai_oponent:
         player = -1
         cell_x = mouse_pos[1]//floor_h_spacing #column 
-        cell_y = mouse_pos[0]//floor_v_spacing #rows 
+        cell_y = mouse_pos[0]//floor_v_spacing #rows  
 
         if game_board[cell_x][cell_y] == 0:
             game_board[cell_x][cell_y] = player
             turn_count += 1
-        print('click ai turn count: ',turn_count)
+
+
     
     print('game board from filling:')
     print(game_board)
@@ -198,9 +204,9 @@ def fill_player_clicks():
 #draw X and Os
 def populate_cells():
   
-    y_pos = 0 #board flip
+    y_pos = 0 
     for x in game_board:
-        x_pos = 0 #board flip
+        x_pos = 0 
         for y in x:
             if y == 1:
                 line_one = [x_pos*h_spacing + offset, y_pos*v_spacing +offset]
@@ -209,8 +215,8 @@ def populate_cells():
                 pg.draw.line(screen,white,(line_one[0],line_two[1]),(line_two[0],line_one[1]),5)
             if y == -1:
                 pg.draw.circle(screen,white,(x_pos*h_spacing + (h_spacing/2),y_pos*v_spacing + (v_spacing/2)),38,5)
-            x_pos += 1 #board flip
-        y_pos += 1 #board flip
+            x_pos += 1 
+        y_pos += 1 
 
 #search game_board for any win states
 def search_array(game_board):
@@ -218,11 +224,9 @@ def search_array(game_board):
     global game_over
     global winner
     global num_grid_lines
-    #global ai_game_over #creates a problem
     for rows in game_board:
         #check rows for winner
         if sum(rows) == num_grid_lines:
-            print(sum(rows))
             winner = 1
             game_over = True
         if sum(rows) == -1 *num_grid_lines:
@@ -271,7 +275,6 @@ def comp_move():
     global turn_count
     global ai_turn
 
-
     for rows in range(num_grid_lines):
         for col in range(num_grid_lines):
             if game_board[rows][col] == 0:
@@ -288,18 +291,17 @@ def comp_move():
     ai_turn = False
     populate_cells()
     return
-#implementation of the min_max algorithm
+#implementation of the min_max algorithm [must fix bug]
 def mini_max(game_board,depth,maximizing):
     global winner
-    check_winner()
-    #ai_winner = winner
+    check_winner() 
     if winner == 1:
         return 1
     elif winner == 2:
         return -1
     elif winner == 3:
         return 0
-
+  
     if maximizing:
         best_score = -math.inf
         for rows in range(num_grid_lines):
@@ -331,7 +333,7 @@ def ui_manager(winner):
         win_text = 'Player ' + str(winner) + " wins!"
     elif winner == 3:
         win_text = "it's a Tie!"
-    win_image = font.render(win_text,True,p_two_color)
+    win_image = font.render(win_text,True,white)
     screen.blit(win_image,(screen_width//2-100,screen_height+10))
 
 
@@ -396,6 +398,7 @@ class GameState():
     def __init__(self):
         self.state = 'intro'
 
+    #manage game loops
     def state_manager(self):
         if self.state == 'intro':
             self.intro()
@@ -431,7 +434,7 @@ class GameState():
 
         screen.fill(rgb)
         
-        # inatantiate intro screen ui objects
+        # instantiate intro screen ui objects
         intro_rect = pg.Rect(0,0,screen_width//2,total_screen_height)
         pg.draw.rect(screen,(218,112,214),intro_rect)
 
@@ -455,8 +458,7 @@ class GameState():
         ai_player = buttons(screen_width//2 + 10,400, 'Classic',3)
         ai_player.draw_button()
 
-        ai_player_t = buttons(screen_width//2 + 10,500, 'Challenge',3)
-        ai_player_t.draw_button()
+
 
         #get player input and set up game modes
 
@@ -476,20 +478,19 @@ class GameState():
                 draw_grid(num_grid_lines)
                 populate_game_board(num_grid_lines)
                 activate_powerups = True
-                #populate_power_ups(num_grid_lines,game_board)
             elif ai_player.draw_button():
                 self.state = 'ai_scene'
                 ai_oponent = True
                 ai_turn = True
-                #print(ai_turn)
                 turn_count = 1
                 screen.fill(rgb)
                 draw_grid(num_grid_lines)
                 populate_game_board(num_grid_lines)
         pg.display.update()
 
-# loaded when player chooses ai option
+#game loop for player vs ai     
     def ai_scene(self):
+        #initialize game loop
         global ai_game_over
         global mouse_click
         global winner
@@ -499,8 +500,7 @@ class GameState():
         global turn_count
         global running
         global ai_turn
-        #ai_mouse_click = False
-        
+           
         if ai_turn:
             comp_move()
             turn_count +=1
@@ -509,16 +509,14 @@ class GameState():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-                if ai_game_over == False:
+                if ai_game_over == False: #must fix tracking of game state in AI mode
                     if event.type == pg.MOUSEBUTTONDOWN and mouse_click == False:
                         mouse_click = True
                     if event.type == pg.MOUSEBUTTONUP and mouse_click == True:
                         fill_player_clicks()
                         ai_turn = True
       
-        
-
-
+    #game loop for player vs player
     def main_game(self):
         global game_over
         global mouse_click
@@ -531,8 +529,7 @@ class GameState():
         global check_power_up
         global ghost_game_board
         global activate_powerups
-        #populate_game_board(num_grid_lines)
-        #draw_grid(num_grid_lines)
+
         
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -570,8 +567,6 @@ class GameState():
                           
 
 
-
-#populate_game_board(num_grid_lines)
 #Game loop
 game_state = GameState()
 running = True
