@@ -1,6 +1,7 @@
 
 import math
 import numpy
+import random
 
 #initialize pygame
 import pygame as pg
@@ -25,6 +26,7 @@ pg.display.set_caption('Tic Tac Toe')
 
 #Variable definitions:
 game_board = []
+ghost_game_board = []
 
 mouse_click = False
 mouse_pos = []
@@ -38,6 +40,7 @@ button_click = False
 ai_oponent = False
 ai_game_over = False
 ai_turn = False
+activate_powerups = False
 
 #Define  colors
 p_one_color =  (255,0,0) #red
@@ -58,6 +61,40 @@ def populate_game_board(n_grid_lines):
     for rows in range(n_grid_lines):
         row = [0]*n_grid_lines
         game_board.append(row)
+
+
+
+#fill array with random power-up placeholders
+def populate_power_ups(n_grid_lines,game_board):
+
+    global activate_powerups
+    empties = []
+    for rows in range(n_grid_lines):
+        row = [0]*n_grid_lines
+        ghost_game_board.append(row)
+ 
+    #random_val = random.randint(0, n_grid_lines-1)
+    for rows in range(n_grid_lines):
+        for columns in range(n_grid_lines):
+            if game_board[rows][columns] == 0:
+                empties.append((rows,columns))
+            else:
+                pass
+
+    #print('random rows are:')
+    #print(random_val)
+    #for x in range(random_val):
+#make sure that powerup placements arent in populated cells
+
+    activate_powerups = False
+   
+    print('modified game board:')
+    print(ghost_game_board)
+
+
+    
+
+
                
     #print(game_board)
 
@@ -120,9 +157,14 @@ def fill_player_clicks():
         if game_board[cell_x][cell_y] == 0:
             game_board[cell_x][cell_y] = player
             turn_count += 1
-            
-     
-      
+    
+    print('game board from filling:')
+    print(game_board)
+
+    if turn_count >= 5 and activate_powerups:
+        populate_power_ups(num_grid_lines,game_board)
+
+
 
  #Check for draw 1st
     if turn_count == (num_grid_lines*num_grid_lines) and winner == 0:
@@ -131,7 +173,7 @@ def fill_player_clicks():
         ai_game_over = True
     else:
         check_winner()
-    #print(game_board)
+
     #draw X and Os in grid
     populate_cells()
 
@@ -157,6 +199,7 @@ def search_array(game_board):
     global game_over
     global winner
     global num_grid_lines
+    #global ai_game_over #creates a problem
     for rows in game_board:
         #check rows for winner
         if sum(rows) == num_grid_lines:
@@ -184,14 +227,15 @@ def search_array(game_board):
     if numpy.trace(anti_diagonal) == num_grid_lines:
         winner = 1
         game_over = True
+        ai_game_over = True
     if numpy.trace(anti_diagonal) == -1*num_grid_lines:
         winner = 2
         game_over = True
-        aiai_game_over = True
+        ai_game_over = True
 
 
 def check_winner():
-    print('min max call')
+
     #check for winner horizontally
     search_array(game_board)
     #check for winner vertically
@@ -205,7 +249,7 @@ def comp_move():
     best_move_col = 0
     global turn_count
     global ai_turn
-    #print(game_board)
+
 
     for rows in range(num_grid_lines):
         for col in range(num_grid_lines):
@@ -216,15 +260,14 @@ def comp_move():
                 if (score > best_score):
                     best_score = score
                     best_move_row = rows
-                    best_move_col = col     
+                    best_move_col = col 
+                
     game_board[best_move_row][best_move_col] = 1
     ai_turn = False
-    print(game_board)
     populate_cells()
     return
-    #ai_turn = False
-    #print(game_board)
-    #return
+
+
 
 def mini_max(game_board,depth,maximizing):
     global winner
@@ -323,8 +366,6 @@ class buttons():
         else:
             screen.blit(text_image,(self.x, self.y))
 
-        
-        #screen.blit(text_image,(self.x + int(self.width/2) - int(text_len/2), self.y +5))
         return action
 
 class GameState():
@@ -354,6 +395,7 @@ class GameState():
         global num_grid_lines
         global ai_oponent
         global ai_turn
+        global activate_powerups
 
         game_board = []
         turn_count = 0
@@ -409,12 +451,13 @@ class GameState():
                 num_grid_lines = 5
                 draw_grid(num_grid_lines)
                 populate_game_board(num_grid_lines)
+                activate_powerups = True
+                #populate_power_ups(num_grid_lines,game_board)
             elif ai_player.draw_button():
                 self.state = 'ai_scene'
                 ai_oponent = True
-                print('intro click sets ai turn to:')
                 ai_turn = True
-                print(ai_turn)
+                #print(ai_turn)
                 turn_count = 1
                 screen.fill(rgb)
                 draw_grid(num_grid_lines)
