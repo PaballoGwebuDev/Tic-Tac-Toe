@@ -71,6 +71,8 @@ def populate_power_ups(n_grid_lines,game_board):
     global activate_powerups
     global check_power_up
     global ghost_game_board
+    global floor_h_spacing
+    global floor_v_spacing
     empties = []
     for rows in range(n_grid_lines):
         row = [0]*n_grid_lines
@@ -87,6 +89,7 @@ def populate_power_ups(n_grid_lines,game_board):
 
     #Randomize allocation of powerups to gird
     number_of_power_ups = random.randint(1,4)
+    
 
 
     for x in range(number_of_power_ups):
@@ -94,6 +97,31 @@ def populate_power_ups(n_grid_lines,game_board):
         #2 represents powerup that clears the grid horizontally, #3 represents powerup that clears the grid vertically
         ghost_game_board[empties[random_select][0]][empties[random_select][1]] = random.randint(2,3) 
         empties.pop(random_select)
+
+    for rows in range(num_grid_lines):
+        for columns in range(num_grid_lines):
+            if ghost_game_board[rows][columns] != 0:
+                power_up_x = floor_h_spacing* rows + 50
+                power_up_y = floor_v_spacing*columns + 50
+                if power_up_x == 0:
+                    power_up_x = floor_h_spacing/2 + 50
+                if power_up_y == 0:
+                    power_up_y = floor_v_spacing/2 + 50
+                if ghost_game_board[rows][columns] == 2:
+                    power_up_text = 'H'
+                    power_up_image = font.render(power_up_text,True,white)
+                    screen.blit(power_up_image,(power_up_y,power_up_x))
+                elif ghost_game_board[rows][columns] == 3:
+                    power_up_text = 'V'
+                    power_up_image = font.render(power_up_text,True,white)
+                    screen.blit(power_up_image,(power_up_y,power_up_x))
+
+
+
+               
+                print('x power up location: ', power_up_x)
+                print('y power up location: ', power_up_y)
+
        
     activate_powerups = False
     if turn_count >= 5:
