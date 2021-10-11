@@ -66,78 +66,73 @@ def populate_game_board(n_grid_lines):
 
 
 #fill array with random power-up placeholders
-def populate_power_ups(n_grid_lines,game_board):
 
-    global activate_powerups
-    global check_power_up
-    global ghost_game_board
-    global floor_h_spacing
-    global floor_v_spacing
-    empties = []
-    for rows in range(n_grid_lines):
-        row = [0]*n_grid_lines
-        ghost_game_board.append(row)
+
+#def populate_power_ups(n_grid_lines,game_board):
+
+#    global activate_powerups
+#    global check_power_up
+#    global ghost_game_board
+#    global floor_h_spacing
+#    global floor_v_spacing
+#    empties = []
+#    for rows in range(n_grid_lines):
+#        row = [0]*n_grid_lines
+#        ghost_game_board.append(row)
  
-    #get available spaces when powerups are activated
-    for rows in range(n_grid_lines):
-        for columns in range(n_grid_lines):
-            if game_board[rows][columns] == 0:
-                empties.append((rows,columns))
-            else:
-                pass
+#    #get available spaces when powerups are activated
+#    for rows in range(n_grid_lines):
+#        for columns in range(n_grid_lines):
+#            if game_board[rows][columns] == 0:
+#                empties.append((rows,columns))
+#            else:
+#                pass
 
 
-    #Randomize allocation of powerups to gird
-    number_of_power_ups = random.randint(1,4)
+#    #Randomize allocation of powerups to gird
+#    number_of_power_ups = random.randint(1,4)
     
 
 
-    for x in range(number_of_power_ups):
-        random_select = random.randint(0,4) 
-        #2 represents powerup that clears the grid horizontally, #3 represents powerup that clears the grid vertically
-        ghost_game_board[empties[random_select][0]][empties[random_select][1]] = random.randint(2,3) 
-        empties.pop(random_select)
+#    for x in range(number_of_power_ups):
+#        random_select = random.randint(0,4) 
+#        #2 represents powerup that clears the grid horizontally, #3 represents powerup that clears the grid vertically
+#        ghost_game_board[empties[random_select][0]][empties[random_select][1]] = random.randint(2,3) 
+#        empties.pop(random_select)
+#    #visually represent power-ups on the grid.
 
-    for rows in range(num_grid_lines):
-        for columns in range(num_grid_lines):
-            if ghost_game_board[rows][columns] != 0:
-                power_up_x = floor_h_spacing* rows + 50
-                power_up_y = floor_v_spacing*columns + 50
-                if power_up_x == 0:
-                    power_up_x = floor_h_spacing/2 + 50
-                if power_up_y == 0:
-                    power_up_y = floor_v_spacing/2 + 50
-                if ghost_game_board[rows][columns] == 2:
-                    power_up_text = 'H'
-                    power_up_image = font.render(power_up_text,True,white)
-                    screen.blit(power_up_image,(power_up_y,power_up_x))
-                elif ghost_game_board[rows][columns] == 3:
-                    power_up_text = 'V'
-                    power_up_image = font.render(power_up_text,True,white)
-                    screen.blit(power_up_image,(power_up_y,power_up_x))
+#    for rows in range(num_grid_lines):
+#        for columns in range(num_grid_lines):
+#            if ghost_game_board[rows][columns] != 0:
+#                power_up_x = floor_h_spacing* rows + 50
+#                power_up_y = floor_v_spacing*columns + 50
+#                if power_up_x == 0:
+#                    power_up_x = floor_h_spacing/2 + 50
+#                if power_up_y == 0:
+#                    power_up_y = floor_v_spacing/2 + 50
+#                if ghost_game_board[rows][columns] == 2:
+#                    power_up_text = 'H'
+#                    power_up_image = font.render(power_up_text,True,white)
+#                    screen.blit(power_up_image,(power_up_y,power_up_x))
+#                elif ghost_game_board[rows][columns] == 3:
+#                    power_up_text = 'V'
+#                    power_up_image = font.render(power_up_text,True,white)
+#                    screen.blit(power_up_image,(power_up_y,power_up_x))
 
 
 
                
-                print('x power up location: ', power_up_x)
-                print('y power up location: ', power_up_y)
 
        
-    activate_powerups = False
-    if turn_count >= 5:
-       check_power_up = True
+#    activate_powerups = False
+#    if turn_count >= 5:
+#       check_power_up = True
 
    
-    print('modified game board:')
-    print(ghost_game_board)
+#    print('modified game board:')
+#    print(ghost_game_board)
 
-
-    
-
-
-               
-
-
+                  
 #Draw Grid
 def draw_grid(n_grid_lines):
     #grid backround
@@ -194,8 +189,7 @@ def fill_player_clicks():
 
             if ghost_game_board[cell_x][cell_y] != 0:
                 print('there is a power up in the cell')
-                #should visually communicate the grid locations of the power-up
-                #should code the effect of clicking the powerup on the game_state{i.e power ups that clear horizontally and vertically}
+
 
     #account for ai opponent making moves without clicking
     elif mouse_pos[1] <= screen_height and ai_oponent:
@@ -208,12 +202,8 @@ def fill_player_clicks():
             turn_count += 1
 
 
-    
-    print('game board from filling:')
-    print(game_board)
-
-    if turn_count >= 5 and activate_powerups:
-        populate_power_ups(num_grid_lines,game_board)
+    #if turn_count >= 5 and activate_powerups:
+    #    populate_power_ups(num_grid_lines,game_board)
 
 
 #Check for draw 1st
@@ -257,7 +247,7 @@ def search_array(game_board):
         if sum(rows) == num_grid_lines:
             winner = 1
             game_over = True
-        if sum(rows) == -1 *num_grid_lines:
+        if sum(rows) == -1 * num_grid_lines:
             winner = 2
             game_over = True
 
@@ -283,7 +273,30 @@ def search_array(game_board):
         game_over = True
         ai_game_over = True
 
+def search_array_ai(board):
 
+    global winner
+    #global num_grid_lines
+    for rows in game_board:
+        #check rows for winner
+        if sum(rows) == num_grid_lines:
+            winner = 1
+        if sum(rows) == -1 * num_grid_lines:
+            winner = 2
+ 
+    #check diagonals for winner
+    diagonal = numpy.asarray(game_board)
+    if numpy.trace(diagonal) == num_grid_lines:
+        winner = 1
+    if numpy.trace(diagonal) == -1*num_grid_lines:
+        winner = 2
+    anti_diagonal = numpy.fliplr(diagonal)
+    if numpy.trace(anti_diagonal) == num_grid_lines:
+        winner = 1
+    if numpy.trace(anti_diagonal) == -1*num_grid_lines:
+        winner = 2
+        
+        
 
 #manage the seaching of a winner within game_board
 def check_winner():
@@ -292,6 +305,17 @@ def check_winner():
     search_array(game_board)
     #check for winner vertically
     search_array(numpy.transpose(game_board))
+
+def ai_check_winner(board):
+
+    global winner
+    #winner = 0
+    if turn_count == (num_grid_lines*num_grid_lines) and winner == 0:
+        winner == 3
+        game_over = True
+    else:
+        search_array_ai(game_board)
+        search_array_ai(numpy.transpose(game_board))
 
 
 #Decide computer move using the minimax algorithm
@@ -308,21 +332,24 @@ def comp_move():
             if game_board[rows][col] == 0:
                 game_board[rows][col] = 1 #ai goes first
                 score = mini_max(game_board,0,False)
-                print('score = ' , score)
+
                 game_board[rows][col] = 0
                 if (score > best_score):
                     best_score = score
                     best_move_row = rows
                     best_move_col = col 
                 
+
     game_board[best_move_row][best_move_col] = 1
-    ai_turn = False
     populate_cells()
-    return
+    ai_turn = False
+    
+    return game_board
+    
 #implementation of the min_max algorithm [must fix bug]
-def mini_max(game_board,depth,maximizing):
-    global winner
-    check_winner() 
+def mini_max(board,depth,maximizing):
+    #global winner
+    ai_check_winner(board) 
     if winner == 1:
         return 1
     elif winner == 2:
@@ -338,8 +365,8 @@ def mini_max(game_board,depth,maximizing):
                     game_board[rows][col] = 1 #ai goes first
                     score = mini_max(game_board,depth +1,True)
                     game_board[rows][col] = 0
-                    if (score > best_score):
-                        best_score = score
+                    best_score = max(score,best_score)
+
         return best_score
     else:
         best_score = math.inf
@@ -349,8 +376,7 @@ def mini_max(game_board,depth,maximizing):
                     game_board[rows][col] = -1
                     score = mini_max(game_board,depth +1,False)
                     game_board[rows][col] = 0
-                    if (score < best_score):
-                        best_score = score
+                    best_score = min(score,best_score)
         return best_score
 
 
@@ -450,15 +476,16 @@ class GameState():
         global num_grid_lines
         global ai_oponent
         global ai_turn
-        global activate_powerups
+        #global activate_powerups
 
         game_board = []
         turn_count = 0
         game_over = False
+        ai_oponent = False
         player = 1
         mouse_pos = (0,0)
         winner = 0
-
+        
 
         screen.fill(rgb)
         
@@ -512,14 +539,16 @@ class GameState():
                 ai_turn = True
                 turn_count = 1
                 screen.fill(rgb)
+                num_grid_lines = 3
                 draw_grid(num_grid_lines)
                 populate_game_board(num_grid_lines)
         pg.display.update()
 
 #game loop for player vs ai     
     def ai_scene(self):
+
         #initialize game loop
-        global ai_game_over
+        global game_over
         global mouse_click
         global winner
         global game_board
@@ -528,21 +557,49 @@ class GameState():
         global turn_count
         global running
         global ai_turn
-           
+     
         if ai_turn:
             comp_move()
             turn_count +=1
+            check_winner()
         else:
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-                if ai_game_over == False: #must fix tracking of game state in AI mode
+                if game_over == False: 
                     if event.type == pg.MOUSEBUTTONDOWN and mouse_click == False:
                         mouse_click = True
                     if event.type == pg.MOUSEBUTTONUP and mouse_click == True:
                         fill_player_clicks()
                         ai_turn = True
+        if game_over == True:
+            #announce winner
+            ui_manager(winner)
+            # call buttons
+            instant_replay = buttons((1/10)*screen_width,total_screen_height - 85, 'Replay',1)
+            main_menu = buttons((5.5/10)*screen_width,total_screen_height - 85, 'Menu',3)
+
+            #button event handlers
+            if instant_replay.draw_button():
+                game_board = []
+                ghost_game_board = []
+                activate_powerups = True
+                check_power_up = False
+                turn_count = 0
+                game_over = False
+                player = 1
+                self.state = 'ai_scene'
+                ai_oponent = True
+                ai_turn = True
+                turn_count = 1
+                mouse_pos = (0,0)
+                winner = 0
+                populate_game_board(num_grid_lines)
+                screen.fill(rgb)
+                draw_grid(num_grid_lines)
+            elif main_menu.draw_button():
+                self.state = 'intro'
       
     #game loop for player vs player
     def main_game(self):
@@ -593,6 +650,7 @@ class GameState():
             elif main_menu.draw_button():
                 self.state = 'intro'
                           
+
 
 
 #Game loop
